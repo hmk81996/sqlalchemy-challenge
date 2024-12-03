@@ -1,6 +1,7 @@
 # Import the dependencies.
 import numpy as np
 import pandas as pd
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -29,9 +30,6 @@ Station = Base.classes.station
 # Create our session (link) from Python to the DB
 session=Session(engine)
 
-# Load the precipitation data into a DataFrame
-prcp_data = pd.read_sql("SELECT * FROM climate_starter", engine)
-
 #################################################
 # Flask Setup
 #################################################
@@ -41,10 +39,11 @@ app = Flask(__name__)
 # Flask Routes
 #################################################
 
-# List all the availble routes
+# List all the available routes
 @app.route("/")
 def home():
-    return (f"Aloha! Hawaii Climate Data <br/>"
+    return (
+        f"Aloha! Hawaii Climate Data <br/>"
         f"Available Routes:<br/>"
         f"/api/v1.0/precipitation <br/>"
         f"/api/v1.0/stations <br/>"
@@ -53,19 +52,71 @@ def home():
         f"/api/v1.0/<start>/<end><br/>"
     )
 
-# Convert the query results from precipitation analysis to a dictionary 
-# Use date as the key and prcp as the value
-@app.route("/api/v1.0/precipitation", methods=['GET'])
-def get_data():
-    # Convert existing DataFrame to a dictionary
-    data = prcp_data.set_index('Date')['Precipitation'].to_dict()
+# Return precipation data from the last year
+
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    
+    # Create a session link from Python to the DB
+    session = Session(engine)
+
+    # Calculate the date one year ago from the most recent date in the database
+    prev_year = dt.date(2017,8,23) - dt.timedelta(days = 365)
+
+    # Query for the date and precipitation for the last year
+    precipitation = session.query(Measurement.date, Measurement.prcp).\
+        filter(Measurement.date >= prev_year).all()
+
+     # Close session
+    session.close()
+
+    # Create a dictionary with date as key and prcp as the value
+    precip = {}
+    for date, prcp in precipitation:
+        precip[date] = prcp
 
     # Return JSON response
-    return jsonify(data)
+    return jsonify(precip)
 
-# @app.route("/api/v1.0/stations")
+# Return a JSON list of stations from the dataset
 
-# @app.route("/api/v1.0/tobs")
+@app.route("/api/v1.0/stations")
+def stations():
+    # Create a session link from Python to the DB
+    session = Session(engine)
+
+    # Query all stations
+    results = session.query(Measurement.station).all()
+
+    # Close session
+    session.close()
+
+    # Convert list of tuples 
+    all_stations = list(np.ravel(results))
+
+    return jsonify(all_stations)
+
+"""
+Query the dates and temperature observations of the most active station
+for the previous year of data.
+Return a JSON list of temparture observations for the previous year.
+"""
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    # Create a session link from Python to the DB
+    session = Session(engine)
+
+    # Query all Measurement for dates and temperature
+    # results = session.query(Measurement.station).all()
+
+    # Close session
+    # session.close()
+
+    # Convert list of tuples 
+    # all_stations = list(np.ravel(results))
+
+    # return jsonify(all_stations)
 
 # @app.route("/api/v1.0/<start>")
 
