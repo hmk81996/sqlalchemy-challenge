@@ -1,6 +1,5 @@
 # Import the dependencies.
 import numpy as np
-import pandas as pd
 import datetime as dt
 
 import sqlalchemy
@@ -48,8 +47,8 @@ def home():
         f"/api/v1.0/precipitation <br/>"
         f"/api/v1.0/stations <br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start> - Start date in YYYY-MM-DD format <br/>"
-        f"/api/v1.0/<start>/<end>  - Start and end dates in YYYY-MM-DD format <br/>"
+        f"/api/v1.0/<start> - Enter start date YYYY-MM-DD <br/>"
+        f"/api/v1.0/<start>/<end>  - Enter start YYYY-MM-DD / end YYYY-MM-DD <br/>"
     )
 
 # Return precipation data from the last year
@@ -86,7 +85,7 @@ def stations():
     session = Session(engine)
 
     # Query all stations
-    results = session.query(Measurement.station).all()
+    results = session.query(Measurement.station).distinct().all()
 
     # Close session
     session.close()
@@ -96,14 +95,16 @@ def stations():
 
     return jsonify(all_stations)
 
-"""
-Query the dates and temperature observations of the most active station
-for the previous year of data.
-Return a JSON list of temparture observations for the previous year.
-"""
+# Return JSON list of temperature observations
+# for the previous year
 
 @app.route("/api/v1.0/tobs")
 def tobs():
+    """ Query the dates and temperature observations of the 
+    most active station for the previous year of data.
+    Return a JSON list of temparture observations 
+    for the previous year."""
+
     # Create a session link from Python to the DB
     session = Session(engine)
 
@@ -125,20 +126,73 @@ def tobs():
 
     return jsonify(last_12_months_tobs)
 
-# @app.route("/api/v1.0/<start>")
+# Return JSON list of temperature statistics 
+# for a specified start date
+
+@app.route("/api/v1.0/<start>")
+def start_date(start):
+    """ Fetch tmin,tavg, tmax for all dates 
+    greater than or equal to the start date, or a 404 if not.
+    """
+
     # Create a session link from Python to the DB
-    # session = Session(engine)   
+    session = Session(engine)   
 
+    # Query the database for temperature statistics
+    temp_stats = session.query(
+        func.min(Measurement.tobs),
+        func.max(Measurement.tobs),
+        func.avg(Measurement.tobs)
+    ).filter(Measurement.date >= start).all()
+
+    # Check if any data was returned  
+    if temp_stats:
+            return jsonify({
+                 "TMIN": temp_stats[0][0],
+                 "TMAX": temp_stats[0][1],
+                 "TAVG": temp_stats[0][2]
+            })
+    
     # Close session
-    # session.close()
+    session.close()
 
+    return jsonify({"error": f"Data with start date {start} not found."}), 404
 
-# @app.route("/api/v1.0/<start>/<end>")
+# Return JSON list of temperature statistics 
+# for a specified start and end date
+
+@app.route("/api/v1.0/<start>/<end>")
+    
+def start_end_date(start,end):
+    """ Fetch tmin,tavg, tmax for all dates 
+    between and including, start and end date, or a 404 if not.
+    """
+
     # Create a session link from Python to the DB
-    # session = Session(engine)   
+    session = Session(engine)   
 
+    # Query the database for temperature statistics
+    temp_stats = session.query(
+        func.min(Measurement.tobs),
+        func.max(Measurement.tobs),
+        func.avg(Measurement.tobs)
+        ).filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
+
+    # Check if any data was returned  
+    if temp_stats:
+            return jsonify({
+                 "TMIN": temp_stats[0][0],
+                 "TMAX": temp_stats[0][1],
+                 "TAVG": temp_stats[0][2]
+            })
+    
     # Close session
-    # session.close()
+    session.close()
+
+    return jsonify({"error": f"Data with start date {start}.\
+                     or end date {end} not found."}), 404
+
 
 if __name__ == "__main__":
     app.run(debug=True)
