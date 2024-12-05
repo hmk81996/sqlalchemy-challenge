@@ -25,6 +25,8 @@ The precipitation data graph below shows some trends:
 
 The summary statistics support the graph. The difference between the mean (.18 inches) and the 50%/median (.02 inches) values indicate that there are some extreme outliers.
 
+*One challenge that I encountered was developing the graph correctly. I had started by using "kind=bar" in my code, mistakenly presuming I was making a bar graph, but after working with a BCS learning assistant, I removed this element and the chart printed correctly. In the process of working to find out why my chart was plotting incorrectly, another learning assistant provided me with alternative code for calculating the previous year date.*
+
 The temperature observations graph shows that the greatest frequency of values for the most active station in Honolulu occurs around 75 degrees. The histogram skews towards warmer temperatures and are all in the range of approximately 60-85 degrees.
 ![Temperature Observations Graph](Aloha/images/temperature%20analysis.png)
 
@@ -44,4 +46,4 @@ The Flask API provides a number of routes for further exploration and the opport
 - /api/v1.0/ - Enter start date YYYY-MM-DD *A dynamic route for users to return temperature statistics for a desired start date*
 - /api/v1.0// - Enter start YYYY-MM-DD / end YYYY-MM-DD *A dynamic route for users to return temperature statistics for a desired start and end date*
 
-One area I will continue to work on is cleaning up user entries to the dynamic routes and returning a 404 for date formats that don't match YYYY-MM-DD.
+*One area I will continue to work on is cleaning up user entries to the dynamic routes and returning a 404 for date formats that don't match YYYY-MM-DD. Another concept I found challenging was the process of using code from the Climate Starter in the Flask. I had some confusion about how whether I was redoing my calculations for the API or accessing them from the Python file I had made already. I'll continue to explore and familiarize myself with Flask API.*
