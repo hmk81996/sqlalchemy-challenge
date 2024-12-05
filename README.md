@@ -16,14 +16,17 @@ Working in Jupyter Notebook, I saved references to two classes named 'station' a
 To get a better sense of the 'station' database, I used an inspector to view the columns and types. I queried stations to organize them by level of acitivty and used the most active station (USC00519281), to calculate the minimum, maximum and average temperatures for the same 12 month range as in the precipitation exploration.
 
 ## Precipitation and Station (Temperature) Analysis
-The precipitation data graph shows some trends:
+The precipitation data graph below shows some trends:
 - Honolulu can get up to 7 inches of rain at a time.
 - Most precipitation values are below 3 inches.
 - Each season seems to have outliers or periods of dramatically increased rainfall. This is an area that could use more exploration.
 
+![Precipitation Data Graph](Aloha/images/precipitation%20analysis.png)
+
 The summary statistics support the graph. The difference between the mean (.18 inches) and the 50%/median (.02 inches) values indicate that there are some extreme outliers.
 
 The temperature observations graph shows that the greatest frequency of values for the most active station in Honolulu occurs around 75 degrees. The histogram skews towards warmer temperatures and are all in the range of approximately 60-85 degrees.
+![Temperature Observations Graph](Aloha/images/temperature%20analysis.png)
 
 The min/max/avg calucations provide a more specific range:
 - Lowest Temperature: 54.0°F
