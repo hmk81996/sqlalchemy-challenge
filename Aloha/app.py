@@ -85,7 +85,8 @@ def stations():
     session = Session(engine)
 
     # Query all stations
-    results = session.query(Measurement.station).distinct().all()
+    results = session.query(
+         Station.station, Station.name, Station.latitude, Station.longitude, Station.elevation).all()
 
     # Close session
     session.close()
