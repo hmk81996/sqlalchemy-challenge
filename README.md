@@ -1,5 +1,5 @@
-# sqlalchemy-challenge
-Data Analytics Course Module 10
+# climate-analysis
+SQLAlchemy Data Exploration - Data Analytics Course Module 10
 
 # Task
 
